@@ -182,14 +182,10 @@ TrackerScreen.onSetComplete(reps)
 ### 6.2 인터페이스
 
 ```kotlin
-// core-simulation
+// core-simulation (zero-dep 모듈)
 interface PullupSimulator {
     fun generatePlan(input: SimulationInput): SimulationResult
-    fun adjustPlan(
-        currentPlan: SimulationResult,
-        progress: ProgressLog,
-        condition: ConditionLog
-    ): SimulationResult
+    // adjustPlan(...)은 Phase 5(동적 재조정)에서 추가
 }
 
 data class SimulationInput(
@@ -199,16 +195,23 @@ data class SimulationInput(
     val gender: Gender,
     val currentMaxPullups: Int,
     val currentDeadHangSeconds: Int,
-    val availableDaysOfWeek: Set<DayOfWeek>,
-    val targetReps: Int = 10
+    val availableDaysOfWeek: Set<DayOfWeek>,    // java.time.DayOfWeek
+    val targetReps: Int = 10,
 )
 
+// 시뮬레이터 출력 타입 — 도메인 모델(WeeklyPlan/Milestone)과 분리.
+// data 레이어에서 SimulatedWeeklyPlan → 도메인 WeeklyPlan + DailyTask + ... 매핑.
 data class SimulationResult(
     val totalWeeks: Int,
-    val weeklyPlans: List<WeeklyPlan>,
-    val expectedMilestones: List<Milestone>
+    val weeklyPlans: List<SimulatedWeeklyPlan>,
+    val expectedMilestones: List<SimulatedMilestone>,
 )
 ```
+
+> **타입 위치 원칙** (의존 그래프 `core:domain → core:simulation`을 유지하기 위함):
+> - **시뮬레이터 input/output에 쓰이는 enum**(`Gender`, `TrainingPhase`, `DayType`, `Intensity`, `ExerciseType`)은 `core:simulation`에 정의.
+> - `core:domain`의 모델(`UserProfile`, `WeeklyPlan` 등)은 simulation에서 import 해 재사용.
+> - 시뮬레이터 출력(`SimulatedWeeklyPlan` 등)은 simulation 전용 타입. 도메인 `WeeklyPlan`은 영속성/UI용. 매핑은 data 레이어 책임.
 
 상세는 [08_PULLUP_SIMULATION_LOGIC.md](./08_PULLUP_SIMULATION_LOGIC.md) 참조.
 

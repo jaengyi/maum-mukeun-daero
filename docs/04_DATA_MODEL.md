@@ -427,8 +427,12 @@ interface MilestoneDao {
 
 ## 4. 도메인 모델 (Mapper 대상)
 
+> **Enum 위치 원칙**: 시뮬레이터 input/output에 쓰이는 enum (`Gender`, `TrainingPhase`, `DayType`, `Intensity`, `ExerciseType`)은 `core:simulation`에 정의되며, `core:domain`은 의존 그래프 상 simulation을 import 해 재사용. 도메인 전용 enum은 `core:domain`에 정의.
+
 ```kotlin
-// core-domain
+// core-domain — Gender는 core-simulation에서 import
+import com.mmd.core.simulation.Gender
+
 data class UserProfile(
     val nickname: String,
     val gender: Gender,
@@ -437,7 +441,7 @@ data class UserProfile(
     val weightKg: Float
 )
 
-enum class Gender { MALE, FEMALE, OTHER }
+// Gender enum은 core-simulation에 정의: { MALE, FEMALE, OTHER }
 
 data class Goal(
     val id: Long,

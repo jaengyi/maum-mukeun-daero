@@ -7,6 +7,8 @@ androidx-core-ktx = "1.13.1"
 androidx-lifecycle-runtime-ktx = "2.8.6"
 androidx-activity-compose = "1.9.3"
 
+coroutines = "1.10.2"
+
 junit = "4.13.2"
 
 [libraries]
@@ -20,6 +22,8 @@ compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
 compose-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
 
