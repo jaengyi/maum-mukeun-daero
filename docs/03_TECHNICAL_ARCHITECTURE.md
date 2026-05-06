@@ -197,21 +197,25 @@ data class SimulationInput(
     val currentDeadHangSeconds: Int,
     val availableDaysOfWeek: Set<DayOfWeek>,    // java.time.DayOfWeek
     val targetReps: Int = 10,
+    val intensityPreference: IntensityPreference = IntensityPreference.NORMAL,
 )
 
+enum class IntensityPreference { GENTLE, NORMAL, AGGRESSIVE }
+
 // 시뮬레이터 출력 타입 — 도메인 모델(WeeklyPlan/Milestone)과 분리.
-// data 레이어에서 SimulatedWeeklyPlan → 도메인 WeeklyPlan + DailyTask + ... 매핑.
+// data 레이어에서 WeeklyPlanDraft → 도메인 WeeklyPlan + DailyTask + ... 매핑.
 data class SimulationResult(
     val totalWeeks: Int,
-    val weeklyPlans: List<SimulatedWeeklyPlan>,
-    val expectedMilestones: List<SimulatedMilestone>,
+    val weeklyPlans: List<WeeklyPlanDraft>,
+    val expectedMilestones: List<MilestoneDraft>,
+    val notes: List<String>,                     // 사용자 안내 메시지
 )
 ```
 
 > **타입 위치 원칙** (의존 그래프 `core:domain → core:simulation`을 유지하기 위함):
-> - **시뮬레이터 input/output에 쓰이는 enum**(`Gender`, `TrainingPhase`, `DayType`, `Intensity`, `ExerciseType`)은 `core:simulation`에 정의.
+> - **시뮬레이터 input/output에 쓰이는 enum**(`Gender`, `TrainingPhase`, `DayType`, `Intensity`, `ExerciseType`, `IntensityPreference`)은 `core:simulation`에 정의.
 > - `core:domain`의 모델(`UserProfile`, `WeeklyPlan` 등)은 simulation에서 import 해 재사용.
-> - 시뮬레이터 출력(`SimulatedWeeklyPlan` 등)은 simulation 전용 타입. 도메인 `WeeklyPlan`은 영속성/UI용. 매핑은 data 레이어 책임.
+> - 시뮬레이터 출력(`WeeklyPlanDraft`/`DailyTaskDraft`/`TaskExecutionDraft`/`MilestoneDraft`)은 simulation 전용 타입. 도메인 `WeeklyPlan`은 영속성/UI용. 매핑(notes/summary 텍스트 생성 포함)은 data 레이어 책임.
 
 상세는 [08_PULLUP_SIMULATION_LOGIC.md](./08_PULLUP_SIMULATION_LOGIC.md) 참조.
 
