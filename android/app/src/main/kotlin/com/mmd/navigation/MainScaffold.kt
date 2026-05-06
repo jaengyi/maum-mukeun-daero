@@ -25,7 +25,11 @@ fun MainScaffold() {
             startDestination = MainRoute.Tracker.route,
             modifier = Modifier.padding(padding),
         ) {
-            trackerScreen()
+            trackerScreen(
+                onStartWorkout = { _ ->
+                    // chunk 3.3에서 navController.navigate(WorkoutRoute) wiring 추가 예정
+                },
+            )
             statsScreen()
             settingsScreen()
             planScreen()    // Bottom Nav에는 없지만 Tracker/Stats에서 navigate 가능
