@@ -23,9 +23,10 @@
 개발 시작 전 모든 환경을 갖춘다.
 
 ### Tasks
-- [ ] Linux 서버에 JDK 17 설치 (`sudo apt install openjdk-17-jdk`)
-- [ ] Android SDK cmdline-tools 설치 (Android Studio 없이도 빌드 가능하도록)
-- [ ] SDK Platform 35, Build-Tools, Platform-Tools 설치
+- [ ] Windows 11에 JDK 17+ 설치 (`winget install EclipseAdoptium.Temurin.21.JDK`)
+- [ ] Android Studio 설치 (`winget install Google.AndroidStudio`) — SDK Manager / adb / Compose Preview 포함
+- [ ] SDK Platform 35, Build-Tools, Platform-Tools 설치 (Android Studio SDK Manager 또는 `sdkmanager` CLI)
+- [ ] `ANDROID_HOME`, `JAVA_HOME` 환경 변수 등록 + `platform-tools` PATH
 - [ ] GitHub repo 생성 (`maum-mukeun-daero`)
 - [ ] 본 기획 문서 일체 commit
 - [ ] `.gitignore` 작성 (Android 표준)

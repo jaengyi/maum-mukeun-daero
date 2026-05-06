@@ -1,7 +1,7 @@
 # 07. Claude Code 작업 가이드
 
 > 본 문서의 핵심 부분은 repo 루트의 `CLAUDE.md`로 복사되어 Claude Code 세션마다 자동 컨텍스트가 됩니다.
-> 작업하는 환경: **Linux 개인 서버 + Claude Code CLI + GitHub**
+> 작업하는 환경: **Windows 11 PC + Claude Code CLI + GitHub** (셸: Git Bash 또는 PowerShell)
 
 ---
 
@@ -9,47 +9,59 @@
 
 Claude Code는 터미널에서 실행되는 에이전트형 코딩 도구로, 코드베이스를 읽고/쓰고 명령을 실행할 수 있습니다. 우리는 이 도구를 활용해 안드로이드 앱을 1인 + Claude의 페어 프로그래밍으로 진행합니다.
 
-## 2. 사전 준비 (Linux 서버)
+## 2. 사전 준비 (Windows 11)
 
 ### 2.1 필수 도구
-```bash
-# JDK 17
-sudo apt update
-sudo apt install -y openjdk-17-jdk
 
-# Node.js (Claude Code 설치용)
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt install -y nodejs
+`winget` (Windows 11 기본 내장) 사용 권장:
+
+```powershell
+# JDK 21 LTS (Temurin)
+winget install EclipseAdoptium.Temurin.21.JDK
 
 # Git
-sudo apt install -y git
+winget install Git.Git
 
-# Android SDK (cmdline-tools)
-mkdir -p ~/Android/Sdk/cmdline-tools
-cd ~/Android/Sdk/cmdline-tools
-wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-unzip commandlinetools-linux-11076708_latest.zip
-mv cmdline-tools latest
+# Node.js LTS (Claude Code 설치용)
+winget install OpenJS.NodeJS.LTS
+
+# Android Studio (SDK Manager + Platform-Tools + adb + Compose Preview 포함)
+winget install Google.AndroidStudio
 ```
 
-> 위 cmdline-tools 다운로드 URL은 시점에 따라 바뀝니다. **Claude Code 작업 시작 시 최신 버전 확인**.
+> **CLI 빌드만 원하면** Android Studio 대신 [Android Command Line Tools (Windows)](https://developer.android.com/studio#command-line-tools-only)만 받아 `%LOCALAPPDATA%\Android\Sdk\cmdline-tools\latest\` 에 압축 해제해도 됩니다.
 
-### 2.2 환경 변수 (`~/.bashrc` 또는 `~/.zshrc`)
-```bash
-export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-export ANDROID_HOME=$HOME/Android/Sdk
-export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/35.0.0
+### 2.2 환경 변수 (PowerShell — 한 번만 등록)
+
+Android Studio 설치 후 SDK 기본 경로: `%LOCALAPPDATA%\Android\Sdk`
+
+```powershell
+# 사용자 환경 변수 영구 등록 (관리자 권한 불필요)
+[Environment]::SetEnvironmentVariable("ANDROID_HOME", "$env:LOCALAPPDATA\Android\Sdk", "User")
+[Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\Eclipse Adoptium\jdk-21.x.x.x-hotspot", "User")  # 실제 설치 경로 확인
+
+# PATH에 platform-tools(adb)와 cmdline-tools 추가
+$user = [Environment]::GetEnvironmentVariable("PATH", "User")
+$user += ";$env:LOCALAPPDATA\Android\Sdk\platform-tools"
+$user += ";$env:LOCALAPPDATA\Android\Sdk\cmdline-tools\latest\bin"
+[Environment]::SetEnvironmentVariable("PATH", $user, "User")
 ```
+
+> 변경 후 **새 터미널을 열어야** 반영됩니다. Git Bash 사용자는 `~/.bashrc`에 `export ANDROID_HOME=...` 추가 가능.
 
 ### 2.3 SDK 패키지 설치
-```bash
+
+Android Studio → Settings → Languages & Frameworks → Android SDK 에서 GUI로 설치하거나, CLI로:
+
+```powershell
 sdkmanager --update
 sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 sdkmanager --licenses   # 약관 동의
 ```
 
 ### 2.4 Claude Code 설치
-```bash
+
+```powershell
 npm install -g @anthropic-ai/claude-code
 claude --version
 ```
@@ -59,13 +71,13 @@ claude --version
 ### 2.5 ADB로 Galaxy 디바이스 연결
 
 **USB 연결**
-1. Galaxy 폰 설정 → 휴대전화 정보 → 소프트웨어 정보 → 빌드번호 7회 탭 → 개발자 모드
+1. Galaxy 폰 설정 → 휴대전화 정보 → 소프트웨어 정보 → 빌드번호 7회 탭 → 개발자 모드 ON
 2. 개발자 옵션 → USB 디버깅 ON
-3. USB로 Linux 서버 연결
+3. USB 케이블로 PC 연결 (Windows가 드라이버 자동 설치, 안 되면 [Samsung USB Driver](https://developer.samsung.com/android-usb-driver) 별도 설치)
 4. `adb devices`에 디바이스 ID 표시되면 OK
 
 **Wi-Fi 연결 (Android 11+)**
-```bash
+```powershell
 # 폰: 개발자 옵션 → 무선 디버깅 ON → 페어링 코드로 기기 페어링
 adb pair <폰IP>:<페어링포트>
 adb connect <폰IP>:<연결포트>
@@ -74,8 +86,9 @@ adb devices
 
 ## 3. 프로젝트 초기화
 
-```bash
-mkdir -p ~/projects && cd ~/projects
+```powershell
+# 프로젝트 루트는 자유 (예: c:\03.Project)
+cd c:\03.Project
 git clone git@github.com:<your-id>/maum-mukeun-daero.git
 cd maum-mukeun-daero
 
@@ -87,8 +100,8 @@ git push
 
 ## 4. Claude Code 실행 첫 흐름
 
-```bash
-cd ~/projects/maum-mukeun-daero
+```powershell
+cd c:\03.Project\maum-mukeun-daero
 claude
 ```
 

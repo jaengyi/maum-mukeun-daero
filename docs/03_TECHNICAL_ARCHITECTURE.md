@@ -15,7 +15,7 @@
 | **언어** | Kotlin 2.0+ | 안드로이드 1st-class 언어, Null safety, Coroutine |
 | **UI 프레임워크** | Jetpack Compose | 선언적 UI, 모던 안드로이드 표준, 애니메이션 용이 |
 | **최소 SDK** | API 26 (Android 8.0) | 국내 사용자 99% 이상 커버 |
-| **타깃 SDK** | API 35 (Android 15) | 최신 정책 준수 |
+| **타깃 SDK** | API 36 (Android 16) | Android Studio 2026 기본값, 최신 Play 정책 대응 |
 | **빌드 도구** | Gradle (Kotlin DSL) | 표준 |
 | **DI** | Hilt | 보일러플레이트 적음, 안드로이드 특화 |
 | **비동기** | Kotlin Coroutines + Flow | 표준, Compose와 자연스럽게 결합 |
@@ -255,7 +255,7 @@ data class SimulationResult(
 ## 10. 개발·배포 환경
 
 ### 10.1 개발 머신
-- **Linux 개인 서버**: 코드/빌드/Claude Code 작업 호스트
+- **Windows 11 PC**: 코드/빌드/Claude Code 작업 호스트 (셸: Git Bash 또는 PowerShell)
 - **로컬 디바이스 (Galaxy)**: ADB over Wi-Fi 또는 USB로 디바이스 테스트
 - **에뮬레이터**: 보조 (정확한 잔디 색감·햅틱 검증은 실기기)
 
@@ -335,56 +335,79 @@ android/
 
 ```toml
 [versions]
-kotlin = "2.0.21"
-agp = "8.6.1"
-compose-bom = "2024.10.01"
-hilt = "2.52"
-room = "2.6.1"
-datastore = "1.1.1"
-navigation-compose = "2.8.3"
+# 핵심 (Phase 0/1에서 즉시 사용) — 2026-05 stable 기준
+agp = "9.1.1"              # 요구 Gradle ≥ 9.3.1 (gradle-wrapper.properties 참조)
+kotlin = "2.2.10"          # AGP 9.x 요구사항: KGP ≥ 2.2.10
+compose-bom = "2026.04.01" # Compose 1.11.0 stable
+
+# 추후 도입 시 최신 stable 재확인 필요
+hilt = "2.52"              # Phase 1 (DI)
+room = "2.6.1"             # Phase 1 (DB)
+datastore = "1.1.1"        # Phase 1 (설정값)
+navigation-compose = "2.8.3" # Phase 1 (네비게이션)
 coroutines = "1.9.0"
-work-manager = "2.9.1"
+work-manager = "2.9.1"     # Phase 5 (백그라운드)
 timber = "5.0.1"
 
 [libraries]
 # Compose
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
 compose-ui = { module = "androidx.compose.ui:ui" }
+compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
+compose-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 
-# Hilt
+# AndroidX 기본
+androidx-core-ktx = { module = "androidx.core:core-ktx", version = "1.13.1" }
+androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version = "2.8.6" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version = "1.9.3" }
+
+# Hilt (Phase 1 도입)
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
 
-# Room
+# Room (Phase 1 도입)
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 
-# DataStore
+# DataStore (Phase 1 도입)
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 
-# Navigation
+# Navigation (Phase 1 도입)
 navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
 
 # Coroutines
 coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 
-# WorkManager
+# WorkManager (Phase 5 도입)
 work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "work-manager" }
 
 # Logging
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
+
+# 테스트
+junit = { module = "junit:junit", version = "4.13.2" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+# AGP 9.0+ built-in Kotlin이 Android 모듈을 자동 처리. 순수 Kotlin 모듈에만 kotlin-jvm 필요.
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ```
 
-> 위 버전은 작성 시점 기준이며 Claude Code 작업 시 최신 안정 버전 확인 필요.
+> **AGP 9.0+ Built-in Kotlin**: Android 모듈(`com.android.application`, `com.android.library`)은 `org.jetbrains.kotlin.android` 플러그인을 명시적으로 적용하면 안 됨 — `Cannot add extension with name 'kotlin'` 에러 발생. 순수 Kotlin/JVM 모듈(`core:common`, `core:simulation`)은 `kotlin-jvm` 플러그인 적용. ([공식 가이드](https://developer.android.com/build/migrate-to-built-in-kotlin))
+> **Compose Compiler 플러그인**: Kotlin 2.0+부터 별도 Gradle 플러그인(`org.jetbrains.kotlin.plugin.compose`)으로 분리. Compose 사용 모듈에 적용 필요.
+> 위 버전은 2026-05 시점 stable. **Phase 1+ 라이브러리는 도입 시점에 최신 stable 재확인.**
 
 ## 14. 시작 전 체크리스트
 
-- [ ] Linux 개발 서버에 JDK 17 설치
-- [ ] Android Studio (또는 SDK + cmdline-tools) 설치
+- [ ] Windows 11에 JDK 17+ (21 LTS 권장) 설치 — Temurin 또는 Microsoft Build of OpenJDK
+- [ ] Android Studio 설치 (SDK + Platform-Tools + Compose Preview 포함) — 또는 cmdline-tools 단독
 - [ ] Android SDK Platform 35, Build-Tools 35.x
+- [ ] `ANDROID_HOME` / `JAVA_HOME` 환경 변수 등록, `platform-tools` PATH 추가
 - [ ] Galaxy 디바이스 USB 디버깅 활성화 (또는 ADB Wi-Fi)
 - [ ] GitHub repo 생성 + SSH 키 등록
 - [ ] Claude Code CLI 설치 + 인증

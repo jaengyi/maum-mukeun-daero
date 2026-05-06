@@ -27,7 +27,7 @@
 ## 환경
 
 - **Target Platform**: Android (Galaxy 디바이스 우선 검증)
-- **Development**: Linux 개인 서버 + Claude Code + GitHub
+- **Development**: Windows 11 PC + Claude Code + GitHub (셸: Git Bash 또는 PowerShell)
 - **Stage**: MVP 0.1.0
 
 ## 문서 목록
@@ -66,8 +66,8 @@ maum-mukeun-daero/
 
 상세 작업 지침은 [CLAUDE_CODE_GUIDE](./docs/07_CLAUDE_CODE_GUIDE.md)를 참고하세요.
 
-```bash
-# Linux 개발 서버에서
+```powershell
+# Windows (PowerShell 또는 Git Bash)
 git clone https://github.com/<your-id>/maum-mukeun-daero.git
 cd maum-mukeun-daero
 claude   # Claude Code 실행
