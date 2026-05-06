@@ -26,6 +26,7 @@ fun MmdTheme(
     MaterialTheme(
         colorScheme = if (darkTheme) DarkColors else LightColors,
         typography = MmdTypography,
+        shapes = MmdShapes,
         content = content,
     )
 }
