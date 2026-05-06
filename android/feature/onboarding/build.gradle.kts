@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -29,13 +30,18 @@ kotlin {
 
 dependencies {
     implementation(project(":core:design"))
+    implementation(project(":core:domain"))
 
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.graphics)
     implementation(libs.compose.material3)
+    implementation(libs.compose.material.icons.core)
     implementation(libs.compose.tooling.preview)
     debugImplementation(libs.compose.tooling)
 
     implementation(libs.navigation.compose)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    implementation(libs.hilt.navigation.compose)
 }
