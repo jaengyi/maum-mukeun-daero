@@ -48,6 +48,12 @@ dependencies {
     implementation(project(":core:design"))
     implementation(project(":core:data"))      // Repository 사용 + Hilt 모듈 노출
 
+    implementation(project(":feature:onboarding"))
+    implementation(project(":feature:plan"))
+    implementation(project(":feature:tracker"))
+    implementation(project(":feature:stats"))
+    implementation(project(":feature:settings"))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -56,8 +62,11 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.graphics)
     implementation(libs.compose.material3)
+    implementation(libs.compose.material.icons.core)    // Bottom Nav 아이콘
     implementation(libs.compose.tooling.preview)
     debugImplementation(libs.compose.tooling)
+
+    implementation(libs.navigation.compose)             // Top-level + Main NavHost
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
