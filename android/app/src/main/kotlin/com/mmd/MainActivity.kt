@@ -13,7 +13,9 @@ import androidx.compose.ui.Modifier
 import com.mmd.core.common.MmdConstants
 import com.mmd.core.design.component.MmdGreetingCard
 import com.mmd.core.design.theme.MmdTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
