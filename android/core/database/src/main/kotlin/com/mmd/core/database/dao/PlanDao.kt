@@ -23,6 +23,12 @@ interface PlanDao {
     @Query("SELECT * FROM daily_task WHERE date = :date LIMIT 1")
     fun observeTodayTask(date: String): Flow<DailyTaskEntity?>
 
+    @Query("SELECT * FROM daily_task WHERE date = :date LIMIT 1")
+    suspend fun getTaskForDate(date: String): DailyTaskEntity?
+
+    @Query("SELECT * FROM task_execution WHERE dailyTaskId = :taskId ORDER BY orderInTask ASC")
+    suspend fun getExecutionsForTask(taskId: Long): List<TaskExecutionEntity>
+
     @Query(
         """
         SELECT * FROM weekly_plan

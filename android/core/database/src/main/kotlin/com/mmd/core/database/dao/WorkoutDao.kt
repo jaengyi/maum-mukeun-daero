@@ -22,4 +22,15 @@ interface WorkoutDao {
     """,
     )
     suspend fun totalRepsOnDate(date: String): Int?
+
+    /** 잔디 갱신 시 그 날짜의 모든 SetRecord (volume 가중 합산용) */
+    @Query(
+        """
+        SELECT sr.* FROM set_record sr
+        JOIN task_execution te ON sr.taskExecutionId = te.id
+        JOIN daily_task dt ON te.dailyTaskId = dt.id
+        WHERE dt.date = :date
+    """,
+    )
+    suspend fun getRecordsOnDate(date: String): List<SetRecordEntity>
 }

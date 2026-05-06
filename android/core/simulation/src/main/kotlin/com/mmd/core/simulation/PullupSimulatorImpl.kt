@@ -170,17 +170,9 @@ class PullupSimulatorImpl : PullupSimulator {
         )
     }
 
-    private fun exerciseRatio(type: ExerciseType): Float = when (type) {
-        ExerciseType.PULLUP -> 1.0f
-        ExerciseType.ASSISTED_PULLUP -> 0.4f
-        ExerciseType.NEGATIVE -> 0.6f
-        ExerciseType.AUSTRALIAN_PULLUP -> 0.3f
-        ExerciseType.DEAD_HANG -> 0.05f                // 초당
-    }
-
     private fun computeTotalVolume(executions: List<TaskExecutionDraft>): Int =
         executions.sumOf {
-            (it.targetSets * it.targetReps * exerciseRatio(it.exerciseType)).toDouble()
+            (it.targetSets * it.targetReps * it.exerciseType.volumeRatio()).toDouble()
         }.toInt()
 
     // ----- 일일 분배 (08 §5.2) -----
