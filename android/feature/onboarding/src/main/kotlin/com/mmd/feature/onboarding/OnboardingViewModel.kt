@@ -1,6 +1,13 @@
 package com.mmd.feature.onboarding
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.mmd.core.domain.model.UserProfile
+import com.mmd.core.domain.usecase.CompleteOnboardingUseCase
+import com.mmd.core.domain.usecase.GeneratePlanUseCase
+import com.mmd.core.simulation.IntensityPreference
+import com.mmd.core.simulation.SimulationInput
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.LocalDate
 import javax.inject.Inject
@@ -8,9 +15,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 @HiltViewModel
-class OnboardingViewModel @Inject constructor() : ViewModel() {
+class OnboardingViewModel @Inject constructor(
+    private val generatePlan: GeneratePlanUseCase,
+    private val completeOnboarding: CompleteOnboardingUseCase,
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OnboardingUiState())
     val uiState: StateFlow<OnboardingUiState> = _uiState.asStateFlow()
@@ -43,6 +54,8 @@ class OnboardingViewModel @Inject constructor() : ViewModel() {
             }
             is OnboardingEvent.DisclaimerAgreementChanged ->
                 _uiState.update { it.copy(agreedToDisclaimer = event.value) }
+            is OnboardingEvent.IntensityChanged -> handleIntensityChange(event.value)
+            OnboardingEvent.SaveAndStart -> handleSaveAndStart()
         }
     }
 
@@ -69,8 +82,18 @@ class OnboardingViewModel @Inject constructor() : ViewModel() {
             }
             OnboardingStep.Disclaimer -> {
                 if (state.agreedToDisclaimer) {
-                    _uiState.update { it.copy(isCompleted = true) }
+                    val simInput = buildSimulationInput(state)
+                    val result = generatePlan(simInput)
+                    _uiState.update {
+                        it.copy(
+                            step = OnboardingStep.SimulationResult,
+                            simulationResult = result,
+                        )
+                    }
                 }
+            }
+            OnboardingStep.SimulationResult -> {
+                // S6에선 NextClicked 무시. SaveAndStart로 따로 처리.
             }
         }
     }
@@ -80,6 +103,63 @@ class OnboardingViewModel @Inject constructor() : ViewModel() {
             _uiState.update { it.copy(step = it.step.previous()) }
         }
     }
+
+    private fun handleIntensityChange(pref: IntensityPreference) {
+        val state = _uiState.value
+        val newInput = buildSimulationInput(state.copy(intensityPreference = pref))
+        val newResult = generatePlan(newInput)
+        _uiState.update {
+            it.copy(
+                intensityPreference = pref,
+                simulationResult = newResult,
+            )
+        }
+    }
+
+    private fun handleSaveAndStart() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSaving = true, saveError = null) }
+            try {
+                val state = _uiState.value
+                val profile = buildUserProfile(state)
+                val simInput = buildSimulationInput(state)
+                val goalId = completeOnboarding(profile = profile, simInput = simInput)
+                Log.i(
+                    TAG,
+                    "Saved onboarding goalId=$goalId totalWeeks=${state.simulationResult?.totalWeeks}",
+                )
+                _uiState.update { it.copy(isSaving = false, isCompleted = true) }
+            } catch (e: Throwable) {
+                Log.e(TAG, "Save failed", e)
+                _uiState.update {
+                    it.copy(isSaving = false, saveError = e.message ?: "저장에 실패했어요. 다시 시도해주세요.")
+                }
+            }
+        }
+    }
+
+    private fun buildSimulationInput(state: OnboardingUiState): SimulationInput {
+        val birthYear = state.birthYearText.toInt()
+        val age = LocalDate.now().year - birthYear
+        return SimulationInput(
+            heightCm = state.heightCmText.toInt(),
+            weightKg = state.weightKgText.toFloat(),
+            age = age,
+            gender = state.gender,
+            currentMaxPullups = state.currentMaxPullups,
+            currentDeadHangSeconds = state.currentDeadHangSec,
+            availableDaysOfWeek = state.availableDays,
+            intensityPreference = state.intensityPreference,
+        )
+    }
+
+    private fun buildUserProfile(state: OnboardingUiState): UserProfile = UserProfile(
+        nickname = state.nickname,
+        gender = state.gender,
+        birthYear = state.birthYearText.toInt(),
+        heightCm = state.heightCmText.toFloat(),
+        weightKg = state.weightKgText.toFloat(),
+    )
 
     private fun applyBodyInfoValidation(state: OnboardingUiState): OnboardingUiState {
         val nicknameErr = when {
@@ -116,4 +196,8 @@ class OnboardingViewModel @Inject constructor() : ViewModel() {
 
     private fun OnboardingUiState.hasBodyInfoErrors(): Boolean =
         nicknameError != null || birthYearError != null || heightError != null || weightError != null
+
+    private companion object {
+        const val TAG = "Onboarding"
+    }
 }

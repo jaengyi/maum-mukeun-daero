@@ -40,6 +40,8 @@ dependencies {
     implementation(libs.compose.tooling.preview)
     debugImplementation(libs.compose.tooling)
 
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)    // viewModelScope.launch (DB 저장 비동기)
+
     implementation(libs.navigation.compose)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

@@ -13,6 +13,7 @@ import com.mmd.feature.onboarding.step.BodyInfoStep
 import com.mmd.feature.onboarding.step.CapabilityStep
 import com.mmd.feature.onboarding.step.DaysStep
 import com.mmd.feature.onboarding.step.DisclaimerStep
+import com.mmd.feature.onboarding.step.SimulationResultStep
 import com.mmd.feature.onboarding.step.WelcomeStep
 
 /**
@@ -48,6 +49,7 @@ fun OnboardingScreen(
             OnboardingStep.Capability -> CapabilityStep(state = state, onEvent = viewModel::onEvent)
             OnboardingStep.Days -> DaysStep(state = state, onEvent = viewModel::onEvent)
             OnboardingStep.Disclaimer -> DisclaimerStep(state = state, onEvent = viewModel::onEvent)
+            OnboardingStep.SimulationResult -> SimulationResultStep(state = state, onEvent = viewModel::onEvent)
         }
     }
 }

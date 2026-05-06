@@ -1,6 +1,8 @@
 package com.mmd.feature.onboarding
 
 import com.mmd.core.simulation.Gender
+import com.mmd.core.simulation.IntensityPreference
+import com.mmd.core.simulation.SimulationResult
 import java.time.DayOfWeek
 import java.time.LocalDate
 
@@ -24,6 +26,12 @@ data class OnboardingUiState(
     // S5 Disclaimer
     val agreedToDisclaimer: Boolean = false,
 
+    // S6 Simulation Result
+    val intensityPreference: IntensityPreference = IntensityPreference.NORMAL,
+    val simulationResult: SimulationResult? = null,
+    val isSaving: Boolean = false,
+    val saveError: String? = null,
+
     // Validation errors
     val nicknameError: String? = null,
     val birthYearError: String? = null,
@@ -31,7 +39,7 @@ data class OnboardingUiState(
     val weightError: String? = null,
     val daysError: String? = null,
 
-    // Completion signal — chunk 2.4가 소비
+    // Completion signal
     val isCompleted: Boolean = false,
 )
 
@@ -41,6 +49,7 @@ enum class OnboardingStep(val indicator: Int?) {
     Capability(2),
     Days(3),
     Disclaimer(4),
+    SimulationResult(null),                // S6 — 인디케이터 안 보임
     ;
 
     fun next(): OnboardingStep = entries.getOrNull(ordinal + 1) ?: this
@@ -64,4 +73,6 @@ sealed interface OnboardingEvent {
     data class CurrentDeadHangChanged(val value: Int) : OnboardingEvent
     data class DayToggled(val day: DayOfWeek) : OnboardingEvent
     data class DisclaimerAgreementChanged(val value: Boolean) : OnboardingEvent
+    data class IntensityChanged(val value: IntensityPreference) : OnboardingEvent
+    data object SaveAndStart : OnboardingEvent
 }
