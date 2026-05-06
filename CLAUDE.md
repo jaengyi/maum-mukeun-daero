@@ -1,86 +1,112 @@
-# CLAUDE.md — 마음먹은대로 (MMD) 프로젝트 컨텍스트
+# CLAUDE.md
 
-> 이 파일은 Claude Code가 모든 세션에서 자동으로 읽는 컨텍스트 문서입니다.
-> 프로젝트 루트에 위치합니다.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## 프로젝트 개요
 
-**마음먹은대로 (MaumMukeunDaero, MMD)** 는 사용자의 작심한 목표를 시뮬레이션 기반 계획, 일일 트래킹, 시각적 잔디 보상으로 습관화시키는 안드로이드 앱입니다.
+**마음먹은대로 (MaumMukeunDaero, MMD)** — 시뮬레이션 기반 계획, 일일 트래킹, 시각적 잔디 보상으로 목표를 습관화시키는 안드로이드 앱.
 
-**MVP 범위**: "턱걸이 10개 달성" 단일 시나리오에 집중.
+**MVP 범위**: "턱걸이 10개 달성" 단일 시나리오.
 
-## 필수 참고 문서 (이 순서로 읽으세요)
+## Truth Source 문서
 
-1. `README.md` — 프로젝트 개요
-2. `docs/01_BUSINESS_PLAN.md` — 비전과 BM
-3. `docs/02_PRODUCT_REQUIREMENTS.md` — 기능 요구사항 (truth source)
-4. `docs/03_TECHNICAL_ARCHITECTURE.md` — 모듈 구조와 기술 스택 (truth source)
-5. `docs/04_DATA_MODEL.md` — DB 스키마 (truth source)
-6. `docs/05_UI_UX_DESIGN.md` — 화면 / UX 설계
-7. `docs/06_DEVELOPMENT_ROADMAP.md` — 작업 순서
-8. `docs/07_CLAUDE_CODE_GUIDE.md` — 작업 가이드
-9. `docs/08_PULLUP_SIMULATION_LOGIC.md` — 시뮬레이션 알고리즘 명세 (truth source)
+코드보다 문서가 우선. 새 결정이 필요하면 **먼저 문서를 업데이트하고 그 다음 코드를 변경**.
 
-## 절대 규칙
+| 문서 | 용도 |
+|------|------|
+| `docs/02_PRODUCT_REQUIREMENTS.md` | 기능 요구사항 |
+| `docs/03_TECHNICAL_ARCHITECTURE.md` | 모듈 구조, 기술 스택 |
+| `docs/04_DATA_MODEL.md` | DB 스키마 |
+| `docs/08_PULLUP_SIMULATION_LOGIC.md` | 시뮬레이션 알고리즘 |
 
-1. **문서가 truth source.** 위 문서들의 결정과 충돌하는 새 결정이 필요하면, **먼저 문서를 업데이트하고 그 다음 코드를 변경**합니다.
-2. **모듈 의존성 방향 준수**: `presentation → domain ← data`. 절대 역방향 의존성 금지. 03 문서 §3.1 표 참조.
-3. **도메인 / 시뮬레이션은 순수 Kotlin**: `core-domain`, `core-simulation` 모듈은 Android 의존성 0.
-4. **UI 텍스트는 한국어, 친근한 존댓말** (05 문서 §7 참조). 죄책감 유발 카피 금지.
-5. **사용자 데이터(헬스, 기록)는 절대 외부로 자동 전송 금지.**
-6. **큰 변경 전 승인**: 모듈 추가, 라이브러리 추가, 스키마 변경 등은 의도와 영향 범위를 먼저 설명하고 사용자 OK를 받은 후 진행.
-7. **시뮬레이션 알고리즘 변경 시 08 문서 먼저 업데이트.**
+기타 참고: `README.md`, `docs/05_UI_UX_DESIGN.md`, `docs/06_DEVELOPMENT_ROADMAP.md`
+
+## 아키텍처
+
+**Clean Architecture + MVVM** (멀티모듈 Gradle)
+
+```
+android/
+├── app/                    # Application entry
+├── core/
+│   ├── core-common/        # 공통 유틸 (Result, Logger)
+│   ├── core-domain/        # 도메인 모델, UseCase, Repository 인터페이스
+│   ├── core-data/          # Repository 구현
+│   ├── core-database/      # Room DB
+│   ├── core-datastore/     # DataStore (설정값)
+│   ├── core-design/        # 디자인 시스템 (Theme, Components)
+│   └── core-simulation/    # 시뮬레이션 알고리즘 (순수 Kotlin)
+└── feature/
+    ├── feature-onboarding/
+    ├── feature-plan/
+    ├── feature-tracker/
+    ├── feature-stats/
+    └── feature-settings/
+```
+
+**의존성 방향**: `presentation → domain ← data` (역방향 금지)
+
+**모듈별 의존성 규칙**:
+- `feature-*` → `core-*` (단, `core-database`/`core-data` 직접 X — Repository 인터페이스만)
+- `core-domain`, `core-simulation` → Android 의존성 0 (순수 Kotlin)
+
+## 핵심 규칙
+
+1. **모듈 추가, 라이브러리 추가, 스키마 변경** → 먼저 설명 후 승인받고 진행
+2. **시뮬레이션 알고리즘 변경** → 08 문서 먼저 업데이트
+3. **UI 텍스트**: 한국어, 친근한 존댓말, 죄책감 유발 카피 금지
+4. **사용자 데이터(헬스, 기록)**: 외부 자동 전송 금지 (로컬 전용)
+
+## 빌드 및 테스트 명령
+
+```bash
+# 빌드
+./gradlew :app:assembleDebug
+
+# 디바이스 설치
+./gradlew :app:installDebug
+
+# 전체 검사 + 테스트
+./gradlew lint detekt test
+
+# 특정 모듈 테스트
+./gradlew :core:simulation:test
+./gradlew :core:simulation:test --tests "PullupSimulatorTest"
+
+# 코드 포맷팅
+./gradlew ktlintFormat
+```
 
 ## 코드 스타일
 
-- Kotlin 2.0+, Jetpack Compose, MVVM, Clean Architecture
-- Compose: stateless composable + ViewModel state hoisting (UiState/UiEvent 패턴)
-- 함수는 작게, 단일 책임
+- **Kotlin 2.0+**, Jetpack Compose
+- **Compose 패턴**: stateless composable + ViewModel state hoisting (`UiState`/`UiEvent` sealed class)
 - 모든 외부 IO는 `suspend` 함수 또는 `Flow`
-- ktlint / detekt 통과 필수
 - import 와일드카드 금지
-
-## 파일 작성 시 체크리스트
-
-- [ ] 같은 모듈의 기존 패턴을 따랐는가?
-- [ ] 새 패키지를 만들 필요가 정말 있는가?
-- [ ] DAO/Repository를 작성했다면 단위 테스트도 함께 추가했는가?
-- [ ] 새 의존성을 추가했다면 `libs.versions.toml`에 등록했는가?
-
-## 빌드 / 실행 명령
-
-```bash
-./gradlew :app:assembleDebug      # 디버그 빌드
-./gradlew :app:installDebug       # 디바이스 설치
-./gradlew lint detekt test        # 검사 + 테스트
-./gradlew :core:simulation:test   # 시뮬레이션 모듈만 테스트
-```
-
-## 작업 흐름 (매 세션)
-
-1. **시작 시**: 어떤 Phase / 어떤 Task인지 명시 ("Phase 2 / 시뮬레이션 엔진 구현")
-2. **진행 중**: 단계별로 진행 보고. 큰 작업은 설계안을 먼저 보여주고 승인 후 코딩.
-3. **종료 시**:
-   - 변경된 파일 요약
-   - 다음 단계 제안
-   - Conventional Commit 메시지 제안 (`feat:`, `fix:`, `docs:`, `test:`, `chore:`, `refactor:`)
+- 새 의존성 추가 시 `libs.versions.toml`에 등록
+- DAO/Repository 작성 시 단위 테스트 함께 추가
 
 ## 환경
 
-- 개발 머신: **Linux 개인 서버**
-- 타깃 디바이스: **Galaxy 안드로이드 폰** (ADB로 연결)
-- VCS: **GitHub**
-- 최소 SDK: **Android 8.0 (API 26)**
+- 최소 SDK: **API 26** (Android 8.0)
 - 타깃 SDK: **API 35**
+- 타깃 디바이스: Galaxy (ADB USB/Wi-Fi 연결)
 
-## 자주 마주칠 결정에 대한 기본값
+## 기본 결정
 
-- 새 화면이 필요하면 → `feature/<name>/` 모듈에 추가
-- 새 데이터 저장이 필요하면 → Room Entity / DAO 추가, DataStore는 단순 설정값만
-- 외부 라이브러리는 **사용자 승인 필요** (라이선스, 크기, 활성도 확인)
-- 백엔드 / 클라우드는 **MVP에서 도입 금지** (로컬 우선)
+| 상황 | 기본 방침 |
+|------|-----------|
+| 새 화면 | `feature/<name>/` 모듈에 추가 |
+| 새 데이터 저장 | Room Entity/DAO 추가 (DataStore는 단순 설정값만) |
+| 외부 라이브러리 | 승인 필요 (라이선스, 크기, 활성도 확인) |
+| 백엔드/클라우드 | MVP에서 금지 (로컬 우선) |
 
-## 모르는 것이 있으면
+## 커밋 컨벤션
 
-- 외부 라이브러리 최신 버전, 안드로이드 정책 변경 등은 web search 활용
-- 결정이 어렵다면 사용자에게 옵션 2~3개와 trade-off를 제시하고 선택을 요청
+Conventional Commits: `feat:`, `fix:`, `docs:`, `test:`, `chore:`, `refactor:`
+
+예시:
+```
+feat(tracker): 오늘의 미션 카드 구현
+fix(simulation): 0개 입력 시 NaN 발생 수정
+```
