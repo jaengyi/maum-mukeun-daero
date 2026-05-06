@@ -1,0 +1,68 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# Android
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+local.properties
+proguard/
+captures/
+output.json
+release/
+.cxx/
+
+# Generated
+gen/
+out/
+bin/
+.kotlin/
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+.navigation/
+
+# Keystore (절대 commit 금지)
+*.jks
+*.keystore
+keystore/
+keystore.properties
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editor
+*.swp
+*.swo
+*~
+.vscode/
+
+# Node (Claude Code 등 도구용)
+node_modules/
+
+# Local env / secrets
+.env
+.env.local
+*.pem
+secrets/
+
+# Claude Code local
+.claude/settings.local.json
+
+# Gradle wrapper download cache
+.gradletasknamecache
