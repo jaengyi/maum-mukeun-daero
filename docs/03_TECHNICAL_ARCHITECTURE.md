@@ -89,10 +89,10 @@ maum-mukeun-daero/
 |---|---|
 | `app` | 모든 feature, core |
 | `feature-*` | core-* (단, core-database / core-data 직접 X — Repository 인터페이스만) |
-| `core-data` | core-domain, core-database, core-datastore |
+| `core-data` | core-domain, core-database, core-datastore (Entity↔Domain 매퍼는 이 모듈에 위치) |
 | `core-domain` | core-common, core-simulation |
 | `core-simulation` | (없음, 순수 Kotlin) |
-| `core-database` | core-domain (Entity↔Domain 매퍼용) |
+| `core-database` | (없음, Room 의존성만) — entity는 primitive 타입(String/Long/Int)만 사용. 매퍼는 core-data가 담당 |
 | `core-design` | (없음, Compose만) |
 
 이렇게 분리하면 시뮬레이션 알고리즘은 단위 테스트가 쉽고, 추후 Kotlin Multiplatform 모듈로 분리 가능하다.
@@ -342,13 +342,15 @@ android/
 agp = "9.1.1"              # 요구 Gradle ≥ 9.3.1 (gradle-wrapper.properties 참조)
 kotlin = "2.2.10"          # AGP 9.x 요구사항: KGP ≥ 2.2.10
 compose-bom = "2026.04.01" # Compose 1.11.0 stable
+coroutines = "1.10.2"      # 2025-04 stable
+room = "2.8.4"             # 2025-11 stable
+ksp = "2.2.10-2.0.2"       # Kotlin 2.2.10 매칭 (Room 컴파일러용)
+robolectric = "4.16.1"     # 2026-01 stable, SDK 36 지원
 
 # 추후 도입 시 최신 stable 재확인 필요
-hilt = "2.52"              # Phase 1 (DI)
-room = "2.6.1"             # Phase 1 (DB)
-datastore = "1.1.1"        # Phase 1 (설정값)
-navigation-compose = "2.8.3" # Phase 1 (네비게이션)
-coroutines = "1.9.0"
+hilt = "2.52"              # Phase 1.4 (DI)
+datastore = "1.1.1"        # Phase 1.4 (설정값)
+navigation-compose = "2.8.3" # Phase 1.6 (네비게이션)
 work-manager = "2.9.1"     # Phase 5 (백그라운드)
 timber = "5.0.1"
 

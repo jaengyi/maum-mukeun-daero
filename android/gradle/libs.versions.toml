@@ -8,8 +8,14 @@ androidx-lifecycle-runtime-ktx = "2.8.6"
 androidx-activity-compose = "1.9.3"
 
 coroutines = "1.10.2"
+room = "2.8.4"
+ksp = "2.2.10-2.0.2"
 
 junit = "4.13.2"
+robolectric = "4.16.1"
+androidx-test-core = "1.6.1"
+androidx-test-junit = "1.2.1"
+turbine = "1.2.0"
 
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core-ktx" }
@@ -24,8 +30,18 @@ compose-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+androidx-test-core-ktx = { module = "androidx.test:core-ktx", version.ref = "androidx-test-core" }
+androidx-test-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-test-junit" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -33,3 +49,5 @@ android-library = { id = "com.android.library", version.ref = "agp" }
 # AGP 9.0+의 built-in Kotlin이 Android 모듈을 처리. 순수 Kotlin 모듈에만 kotlin-jvm 필요.
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+androidx-room = { id = "androidx.room", version.ref = "room" }
