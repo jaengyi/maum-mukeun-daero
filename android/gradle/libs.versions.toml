@@ -12,6 +12,7 @@ room = "2.8.4"
 ksp = "2.2.10-2.0.2"
 hilt = "2.59.2"
 navigation-compose = "2.9.8"
+javax-inject = "1"
 
 junit = "4.13.2"
 robolectric = "4.16.1"
@@ -33,6 +34,8 @@ compose-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 compose-material-icons-core = { module = "androidx.compose.material:material-icons-core" }
 
 navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
+
+javax-inject = { module = "javax.inject:javax.inject", version.ref = "javax-inject" }
 
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }

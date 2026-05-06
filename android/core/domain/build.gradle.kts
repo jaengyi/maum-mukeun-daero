@@ -19,4 +19,8 @@ dependencies {
     api(project(":core:simulation"))
     // Flow가 Repository 인터페이스 반환 타입이므로 api
     api(libs.kotlinx.coroutines.core)
+    // UseCase의 @Inject constructor용 (5KB 스펙 jar, Android 의존 없음)
+    api(libs.javax.inject)
+
+    testImplementation(libs.junit)
 }
