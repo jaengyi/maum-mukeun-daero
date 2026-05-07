@@ -14,4 +14,7 @@ interface PlanRepository {
 
     /** 동적 재조정 — fromWeek부터 끝까지 교체 (Phase 5) */
     suspend fun replacePlanFromWeek(goalId: Long, fromWeek: Int, newPlans: List<WeeklyPlan>)
+
+    /** taskId로 조회. executions 포함 (records는 비어있음). S8 운동 화면용 */
+    suspend fun getTaskWithExecutions(taskId: Long): DailyTask?
 }

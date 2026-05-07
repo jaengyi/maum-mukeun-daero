@@ -33,4 +33,14 @@ interface WorkoutDao {
     """,
     )
     suspend fun getRecordsOnDate(date: String): List<SetRecordEntity>
+
+    /** S8 운동 화면 진입 시 진행 상태 복원용 */
+    @Query(
+        """
+        SELECT sr.* FROM set_record sr
+        JOIN task_execution te ON sr.taskExecutionId = te.id
+        WHERE te.dailyTaskId = :taskId
+    """,
+    )
+    suspend fun getRecordsForTask(taskId: Long): List<SetRecordEntity>
 }

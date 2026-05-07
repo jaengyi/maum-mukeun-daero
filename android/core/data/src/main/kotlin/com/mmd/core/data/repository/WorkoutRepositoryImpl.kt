@@ -22,4 +22,9 @@ internal class WorkoutRepositoryImpl @Inject constructor(
 
     override suspend fun totalRepsOnDate(date: LocalDate): Int =
         dao.totalRepsOnDate(date.toString()) ?: 0
+
+    override suspend fun getRecordCountsForTask(taskId: Long): Map<Long, Int> =
+        dao.getRecordsForTask(taskId)
+            .groupBy { it.taskExecutionId }
+            .mapValues { it.value.size }
 }

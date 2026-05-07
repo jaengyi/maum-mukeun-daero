@@ -13,9 +13,14 @@ import com.mmd.feature.tracker.trackerScreen
 
 /**
  * Main 그래프 — Bottom Nav 3탭 + Plan(non-tab, 다른 화면에서 navigate).
+ *
+ * onStartWorkout는 outer NavController가 처리하도록 콜백을 위로 전달
+ * (workout은 Bottom Nav 위 풀스크린이라 outer NavHost에 위치).
  */
 @Composable
-fun MainScaffold() {
+fun MainScaffold(
+    onStartWorkout: (taskId: Long) -> Unit,
+) {
     val navController = rememberNavController()
     Scaffold(
         bottomBar = { MmdBottomBar(navController) },
@@ -25,11 +30,7 @@ fun MainScaffold() {
             startDestination = MainRoute.Tracker.route,
             modifier = Modifier.padding(padding),
         ) {
-            trackerScreen(
-                onStartWorkout = { _ ->
-                    // chunk 3.3에서 navController.navigate(WorkoutRoute) wiring 추가 예정
-                },
-            )
+            trackerScreen(onStartWorkout = onStartWorkout)
             statsScreen()
             settingsScreen()
             planScreen()    // Bottom Nav에는 없지만 Tracker/Stats에서 navigate 가능

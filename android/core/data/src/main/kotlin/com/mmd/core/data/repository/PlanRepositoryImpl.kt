@@ -42,6 +42,12 @@ internal class PlanRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getTaskWithExecutions(taskId: Long): DailyTask? {
+        val taskEntity = dao.getTaskById(taskId) ?: return null
+        val executions = dao.getExecutionsForTask(taskId).map { it.toDomain() }
+        return taskEntity.toDomain(executions)
+    }
+
     private suspend fun insertPlanTree(
         goalId: Long,
         plans: List<WeeklyPlan>,
