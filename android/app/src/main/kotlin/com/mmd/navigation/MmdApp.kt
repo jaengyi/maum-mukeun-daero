@@ -9,6 +9,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.mmd.core.design.theme.MmdTheme
 import com.mmd.feature.onboarding.onboardingScreen
+import com.mmd.feature.tracker.completion.completionRouteFor
+import com.mmd.feature.tracker.completion.completionScreen
+import com.mmd.feature.tracker.workout.WorkoutRoute
 import com.mmd.feature.tracker.workout.workoutRouteFor
 import com.mmd.feature.tracker.workout.workoutScreen
 
@@ -40,12 +43,19 @@ fun MmdApp() {
                     )
                 }
                 workoutScreen(
-                    onComplete = {
-                        // chunk 3.4: S9 완료 화면으로 이동.
-                        // 현재는 단순 popBackStack으로 Main(홈)으로 복귀.
-                        navController.popBackStack()
+                    onComplete = { taskId ->
+                        // S8 → S9: workout 백스택에서 제거하고 completion으로 이동
+                        navController.navigate(completionRouteFor(taskId)) {
+                            popUpTo(WorkoutRoute) { inclusive = true }
+                        }
                     },
                     onCancel = { navController.popBackStack() },
+                )
+                completionScreen(
+                    onConfirm = {
+                        // S9 → Main(홈)으로 복귀
+                        navController.popBackStack()
+                    },
                 )
             }
         }

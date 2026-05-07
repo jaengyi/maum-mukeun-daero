@@ -15,13 +15,18 @@ const val WorkoutRoute = "$WorkoutRouteBase/{${WorkoutNavArgs.TASK_ID}}"
 fun workoutRouteFor(taskId: Long): String = "$WorkoutRouteBase/$taskId"
 
 fun NavGraphBuilder.workoutScreen(
-    onComplete: () -> Unit,
+    onComplete: (taskId: Long) -> Unit,
     onCancel: () -> Unit,
 ) {
     composable(
         route = WorkoutRoute,
         arguments = listOf(navArgument(WorkoutNavArgs.TASK_ID) { type = NavType.LongType }),
-    ) {
-        WorkoutScreen(onComplete = onComplete, onCancel = onCancel)
+    ) { backStackEntry ->
+        val taskId = backStackEntry.arguments?.getLong(WorkoutNavArgs.TASK_ID)
+            ?: error("${WorkoutNavArgs.TASK_ID} required")
+        WorkoutScreen(
+            onComplete = { onComplete(taskId) },
+            onCancel = onCancel,
+        )
     }
 }
